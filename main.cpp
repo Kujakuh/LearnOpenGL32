@@ -112,8 +112,10 @@ int main()
 
     // Bind a specific target to our just created buffer, now any call to GL_ARRAY_BUFFER refers to VBO
     // Copy user data to target VBO buffer in graphics card memory
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(triangleVertices), triangleVertices, GL_STATIC_DRAW);
+
     // Same for EBO
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
