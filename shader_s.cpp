@@ -119,27 +119,27 @@ void Shader::use()
 *	Get the uniform "location" (var it self) in the shader program to be able to edit
 *	Set the values of the uniform at the given location
 */
-void Shader::setBoolUniform(const std::string& name, bool value) const
+void Shader::setBoolUniform(const string &name, bool value) const
 {
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
-void Shader::setIntUniform(const std::string& name, int value) const
+void Shader::setIntUniform(const string &name, int value) const
 {
 	glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
-void Shader::setUIntUniform(const std::string& name, unsigned int value) const
+void Shader::setUIntUniform(const string &name, unsigned int value) const
 {
 	glUniform1ui(glGetUniformLocation(ID, name.c_str()), value);
 }
-void Shader::setFloatUniform(const std::string& name, float value) const
+void Shader::setFloatUniform(const string &name, float value) const
 {
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
-void Shader::setFloat3Uniform(const std::string& name, float v1, float v2, float v3) const
+void Shader::setFloat3Uniform(const string &name, float v1, float v2, float v3) const
 {
 	glUniform3f(glGetUniformLocation(ID, name.c_str()), v1, v2, v3);
 }
-void Shader::setFloat4Uniform(const std::string& name, float v1, float v2, float v3, float v4) const
+void Shader::setFloat4Uniform(const string &name, float v1, float v2, float v3, float v4) const
 {
 	glUniform4f(glGetUniformLocation(ID, name.c_str()), v1, v2, v3, v4);
 }
