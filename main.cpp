@@ -91,10 +91,10 @@ int main()
 
     float triangleVertices[] = {
         // Positions          // Colors
-         0.5f,  0.5f,  0.0f,  1.0f, 0.0f, 0.0f,    // top right
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,    // bottom right
+         0.5f,  0.5f,  0.0f,  0.3f, 0.7f, 0.2f,    // top right
+         0.5f, -0.5f, -0.5f,  0.5f, 1.0f, 0.9f,    // bottom right
         -0.5f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f,    // bottom left
-        -0.5f,  0.5f, -0.5f,  0.5f, 1.0f, 0.5f     // top left
+        -0.5f,  0.5f, -0.5f,  0.1f, 0.5f, 0.0f     // top left
     };
 
     unsigned int indices[] = {  // note that we start from 0!

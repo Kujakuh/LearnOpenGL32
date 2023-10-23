@@ -35,40 +35,28 @@ void linkShaderErrorCheck(unsigned int shaderProgram)
 	}
 }
 
-#pragma endregion
-// -----------------------------------------------------------------------------
-
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+string readShaderFile(const char* shaderPath)
 {
-	ID = 0;
-
-	// 1. Get the vertex and fragment source code from filePath and convert it to char*
-
-	string vertexCode, fragmentCode;
-	ifstream vShaderFile, fShaderFile;
-	stringstream vShaderStream, fShaderStream;
+	string shaderCode;
+	ifstream shaderFile;
+	stringstream shaderStream;
 
 	// Ensure ifstream objects can throw exceptions
-	vShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
-	fShaderFile.exceptions(ifstream::failbit | ifstream::badbit);
+	shaderFile.exceptions(ifstream::failbit | ifstream::badbit);
 
 	try
 	{
 		// Open files
-		vShaderFile.open(vertexPath); 
-		fShaderFile.open(fragmentPath);
+		shaderFile.open(shaderPath);
 
 		// Read file's buffer contents into streams
-		vShaderStream << vShaderFile.rdbuf(); 
-		fShaderStream << fShaderFile.rdbuf();
+		shaderStream << shaderFile.rdbuf();
 
 		// Close file handlers
-		vShaderFile.close(); 
-		fShaderFile.close();
+		shaderFile.close();
 
 		// Convert stream into string
-		vertexCode = vShaderStream.str(); 
-		fragmentCode = fShaderStream.str();
+		shaderCode = shaderStream.str();
 
 	}
 	catch (const std::exception&)
@@ -76,7 +64,23 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 		cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << endl;
 	}
 
+	return shaderCode;
+}
+
+#pragma endregion
+// -----------------------------------------------------------------------------
+
+Shader::Shader(const char* vertexPath, const char* fragmentPath)
+{
+	ID = 0;
+
+	// 1. Get the vertex and fragment source code from filePath and convert it to string
+
+	string vertexCode = readShaderFile(vertexPath);
+	string fragmentCode = readShaderFile(fragmentPath);
+
 	// Convert string into char*
+	
 	const char* vShaderCode = vertexCode.c_str(); 
 	const char* fShaderCode = fragmentCode.c_str();
 
