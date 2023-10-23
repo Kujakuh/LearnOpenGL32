@@ -29,7 +29,7 @@ void fps()
         previousTime = currentTime;
     }
 }
-#pragma endregion
+#pragma endregion "Frames per second display"
 
 void inputManagement(GLFWwindow* window)
 {
