@@ -1,7 +1,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <SHADER/shader_s.h>
+#include <TEXTURE/texture_s.h>
 
 #include <iostream>
 
@@ -97,12 +99,12 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.1f, 0.5f, 0.0f     // top left
     };
 
-    unsigned int indices[] = {  // note that we start from 0!
+    GLuint indices[] = {  // note that we start from 0!
         0, 1, 3,                // first triangle
         1, 2, 3                 // second triangle
     };
 
-    unsigned int VAO, VBO, EBO;         // Vertex array object, Vertex buffer object, Element buffer object
+    GLuint VAO, VBO, EBO;         // Vertex array object, Vertex buffer object, Element buffer object
     glGenVertexArrays(1, &VAO);         // Generate the buffer array for VAO
     glGenBuffers(1, &VBO);              // Generate the buffer for VBO
     glGenBuffers(1, &EBO);              // Generate the buffer for EBO
@@ -136,6 +138,8 @@ int main()
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    cout << main_shader.getID() << endl;
 
     #pragma region MAIN_RENDER_LOOP
     while (!glfwWindowShouldClose(window))
