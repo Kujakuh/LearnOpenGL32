@@ -9,8 +9,8 @@
 
 using namespace std;
 
-constexpr auto _HEIGHT = 800;
-constexpr auto _WIDTH = 600;
+constexpr auto _HEIGHT = 600;
+constexpr auto _WIDTH = 800;
 
 bool wireframeOn = false;
 
@@ -89,14 +89,17 @@ int main()
 
     #pragma endregion "GLFW window and Glad (OpenGL) setup"
 
+    GLenum texture_config[4] = { GL_REPEAT,GL_REPEAT,GL_LINEAR,GL_LINEAR };
+
+    Texture main_texture = Texture("resources/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, texture_config, true);
     Shader main_shader = Shader("shaders/vShader.vert", "shaders/fShader.frag");
 
     float triangleVertices[] = {
-        // Positions          // Colors
-         0.5f,  0.5f,  0.0f,  0.3f, 0.7f, 0.2f,    // top right
-         0.5f, -0.5f, -0.5f,  0.5f, 1.0f, 0.9f,    // bottom right
-        -0.5f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f,    // bottom left
-        -0.5f,  0.5f, -0.5f,  0.1f, 0.5f, 0.0f     // top left
+         // positions           // colors           // texture coords
+         0.5f,  0.5f, 0.0f,     1.0f, 0.0f, 0.0f,   1.0f, 1.0f,         // top right
+         0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f,         // bottom right
+        -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f,   0.0f, 0.0f,         // bottom left
+        -0.5f,  0.5f, 0.0f,     1.0f, 1.0f, 0.0f,   0.0f, 1.0f          // top left
     };
 
     GLuint indices[] = {  // note that we start from 0!
@@ -128,18 +131,18 @@ int main()
      GL_DYNAMIC_DRAW: the data is changed a lot and used many times.
     */
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
 
 
     // Unbinding VAO, VBO AND EBO
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    cout << main_shader.getID() << endl;
 
     #pragma region MAIN_RENDER_LOOP
     while (!glfwWindowShouldClose(window))
@@ -152,6 +155,7 @@ int main()
         fps();
 
         main_shader.use();
+        main_texture.bind();
 
         glBindVertexArray(VAO);
         // Mode, num of vertices, data type of the indices, and offset 
@@ -159,6 +163,8 @@ int main()
         // Mode, starting index, num of vertices
         // glDrawArrays(GL_TRIANGLES, 0, 6); // Without EBO
         glBindVertexArray(0);
+
+        main_texture.unbind();
 
         // Double buffer swapping and event catching
         glfwSwapBuffers(window);
