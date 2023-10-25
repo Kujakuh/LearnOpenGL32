@@ -16,6 +16,8 @@
 #define SHADER_S_H
 
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp> // For glm::value_ptr
 
 #include <iostream>
 #include <fstream>
@@ -23,21 +25,22 @@
 #include <string>
 
 using namespace std;
+using namespace glm;
 
 // Utils -----------------------------------------------------------------------
 #pragma region "Shader construct utility functions"
 
 void compileShader(GLuint shader, const char* shaderCode)
 {
-	int comopilationFlag;
+	int compilationFlag;
 	char infoLog[512];
 
 	glShaderSource(shader, 1, &shaderCode, NULL); // Attach shader source code to shader object
 	glCompileShader(shader); // Compile the shader source code to the shader object
 
 	// Check if compilation of the shader was successful :: snippet (Always the same)
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &comopilationFlag);
-	if (!comopilationFlag)
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &compilationFlag);
+	if (!compilationFlag)
 	{
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
 		cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << endl;
@@ -84,7 +87,7 @@ string readShaderFile(const char* shaderPath)
 	}
 	catch (const std::exception&)
 	{
-		cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << endl;
+		cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ" << endl;
 	}
 
 	return shaderCode;
@@ -183,6 +186,10 @@ public:
 	void setFloat4Uniform(const string& name, float v1, float v2, float v3, float v4) const
 	{
 		glUniform4f(glGetUniformLocation(this->ID, name.c_str()), v1, v2, v3, v4);
+	}
+	void setMat4Uniform(const string& name, mat4 value) const
+	{
+		glUniformMatrix4fv(glGetUniformLocation(this->ID, name.c_str()), 1, GL_FALSE, value_ptr(value));
 	}
 
 };

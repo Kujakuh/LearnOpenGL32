@@ -11,5 +11,7 @@ uniform float pick;
 
 void main()
 {
-   FragColor = mix(texture(ourTexture1, textCoord), texture(ourTexture1, textCoord), pick);
+   //if(pick == 1) FragColor = texture(ourTexture1, textCoord);
+   //else FragColor = texture(ourTexture0, textCoord);
+   FragColor = mix(texture(ourTexture0, textCoord), texture(ourTexture1, textCoord), pick);
 };
