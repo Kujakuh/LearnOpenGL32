@@ -20,26 +20,20 @@ constexpr auto _WIDTH = 800;
 bool wireframeOn = false;
 
 #pragma region FPS_COUNTER
-double previousTime = glfwGetTime();
+double previousTime = 0;
 int frameCount = 0;
-void fps()
-{
-    double currentTime = glfwGetTime();
-    frameCount++;
-    // If a second has passed.
-    if (currentTime - previousTime >= 1.0)
-    {
-        // Display the frame count here any way you want.
-        cout << frameCount << endl;
-
-        frameCount = 0;
-        previousTime = currentTime;
-    }
-}
+void fps();
 #pragma endregion "Frames per second display"
+
+#pragma region DELTA TIME
+float deltaTime = 0.0f;
+float timeSinceStart = 0.0f;
+void updateDeltaTime();
+#pragma endregion "Declaration"
 
 void inputManagement(GLFWwindow* window);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+
 
 float swap_var = 0.2f;
 
@@ -141,12 +135,11 @@ int main()
     main_shader.use();
     main_shader.setIntUniform("ourTexture0", container.getTextureUnit());
     main_shader.setIntUniform("ourTexture1", face.getTextureUnit());
-    trans = rotate(trans, radians(45.0f), vec3(0, 0, 1));
-    main_shader.setMat4Uniform("model", trans);
 
     #pragma region MAIN_RENDER_LOOP
     while (!glfwWindowShouldClose(window))
     {
+        updateDeltaTime();
         inputManagement(window);
 
         glClearColor(0.05f, 0.62f, 0.62f, 1.0f);
@@ -159,6 +152,9 @@ int main()
         fps();
 
         main_shader.setFloatUniform("pick", swap_var);
+
+        trans = rotate(trans, (float) sin(glfwGetTime()) * deltaTime, vec3(0, 0, 1));
+        main_shader.setMat4Uniform("model", trans);
 
         glBindVertexArray(VAO);
         // Mode, num of vertices, data type of the indices, and offset 
@@ -182,6 +178,30 @@ int main()
     return 0;
 }
 
+#pragma region FUNCTIONS IMPLEMENTATION
+
+void fps()
+{
+    double currentTime = glfwGetTime();
+    frameCount++;
+    // If a second has passed.
+    if (currentTime - previousTime >= 1.0)
+    {
+        // Display the frame count here any way you want.
+        cout << frameCount << endl;
+
+        frameCount = 0;
+        previousTime = currentTime;
+    }
+}
+
+void updateDeltaTime()
+{
+	float currentTime = glfwGetTime();
+	deltaTime = (currentTime - timeSinceStart);
+	timeSinceStart = currentTime;
+}
+
 void inputManagement(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -200,12 +220,12 @@ void inputManagement(GLFWwindow* window)
     }
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
     {
-        swap_var += 0.0005f;
+        swap_var += deltaTime;
         if(swap_var > 1.0f) swap_var = 1.0f;
     }
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
     {
-        swap_var -= 0.0005f;
+        swap_var -= deltaTime;
         if(swap_var < 0.0f) swap_var = 0.0f;
     }
 }
@@ -214,3 +234,5 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
+
+#pragma endregion
