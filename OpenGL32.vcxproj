@@ -135,6 +135,10 @@
     <ClCompile Include="C:\openglSDK\src\glad.c" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\openglSDK\include\SHADER\shader_s.h" />
+    <ClInclude Include="C:\openglSDK\include\TEXTURE\texture_s.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
