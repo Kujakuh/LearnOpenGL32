@@ -139,6 +139,10 @@
     <ClInclude Include="C:\openglSDK\include\SHADER\shader_s.h" />
     <ClInclude Include="C:\openglSDK\include\TEXTURE\texture_s.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\fShader.frag" />
+    <None Include="shaders\vShader.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

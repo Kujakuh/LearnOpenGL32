@@ -30,4 +30,12 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\fShader.frag">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="shaders\vShader.vert">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+  </ItemGroup>
 </Project>
