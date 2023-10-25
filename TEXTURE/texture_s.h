@@ -74,7 +74,7 @@ public:
 
 	void bind()
 	{
-		glActiveTexture(GL_TEXTURE0 + this->textureUnit);
+		glActiveTexture(this->textureUnit);
 		glBindTexture(this->type, this->ID);
 	}
 	void unbind()
@@ -98,7 +98,7 @@ public:
 
 		// Generate and bind the texture to be able to modify it
 		glGenTextures(1, &this->ID);
-		glActiveTexture(GL_TEXTURE0 + this->textureUnit);
+		glActiveTexture(this->textureUnit);
 		glBindTexture(this->type, this->ID);
 
 		// Set the texture wrapping and filtering options

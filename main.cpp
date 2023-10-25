@@ -33,28 +33,10 @@ void fps()
 }
 #pragma endregion "Frames per second display"
 
-void inputManagement(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-    {
-        if (wireframeOn) {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            wireframeOn = false;
-        }
-        else
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            wireframeOn = true;
-        }
-    }
-}
+void inputManagement(GLFWwindow* window);
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
+float swap_var = 1.0f;
 
 int main()
 {
@@ -91,7 +73,8 @@ int main()
 
     GLenum texture_config[4] = { GL_REPEAT,GL_REPEAT,GL_LINEAR,GL_LINEAR };
 
-    Texture main_texture = Texture("resources/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, texture_config, true);
+    Texture main_texture0 = Texture("resources/container.jpg", GL_TEXTURE_2D, GL_TEXTURE0, texture_config, true);
+    Texture main_texture1 = Texture("resources/awesomeface.png", GL_TEXTURE_2D, GL_TEXTURE1, texture_config, true);
     Shader main_shader = Shader("shaders/vShader.vert", "shaders/fShader.frag");
 
     float triangleVertices[] = {
@@ -144,18 +127,26 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+    main_shader.use();
+    main_shader.setIntUniform("ourTexture1", 1);
+    main_shader.setIntUniform("ourTexture0", 0);
+
+
     #pragma region MAIN_RENDER_LOOP
     while (!glfwWindowShouldClose(window))
     {
         inputManagement(window);
 
-        glClearColor(0.1f, 0.42f, 0.52f, 1.0f);
+        glClearColor(0.8f, 0.42f, 0.52f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         fps();
 
+        main_texture1.bind();
+        main_texture0.bind();
+
+        main_shader.setFloatUniform("pick", swap_var);
         main_shader.use();
-        main_texture.bind();
 
         glBindVertexArray(VAO);
         // Mode, num of vertices, data type of the indices, and offset 
@@ -163,8 +154,6 @@ int main()
         // Mode, starting index, num of vertices
         // glDrawArrays(GL_TRIANGLES, 0, 6); // Without EBO
         glBindVertexArray(0);
-
-        main_texture.unbind();
 
         // Double buffer swapping and event catching
         glfwSwapBuffers(window);
@@ -179,4 +168,35 @@ int main()
 
     glfwTerminate();
     return 0;
+}
+
+void inputManagement(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+    {
+        if (wireframeOn) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            wireframeOn = false;
+        }
+        else
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            wireframeOn = true;
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+    {
+        swap_var = 1.0f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+    {
+        swap_var = 0.0f;
+    }
+}
+
+void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
 }
