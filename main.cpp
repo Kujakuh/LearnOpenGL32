@@ -8,6 +8,7 @@
 
 #include <SHADER/shader_s.h>
 #include <TEXTURE/texture_s.h>
+#include <CAMERA/base_camera.h>
 
 #include <iostream>
 
@@ -17,8 +18,10 @@ using namespace glm;
 constexpr auto _HEIGHT = 600;
 constexpr auto _WIDTH = 800;
 
-bool wireframeOn = false;
+bool wireframeOn = false, windowFocus = true;
 mat4 model = mat4(1.0f), view = mat4(1.0f), projection = mat4(1.0f);
+
+BaseCamera camera(vec3(-2.0f, 1.0f, 6.0f));
 
 #pragma region FPS_COUNTER
 double previousTime = 0;
@@ -34,10 +37,12 @@ void updateDeltaTime();
 
 void inputManagement(GLFWwindow* window);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xPos, double yPos);
+void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
 float FOV = 45.0f;
 float swap_var = 0.2f;
-float cameraSpeed = 2.5f;
+float cameraSpeed = 5.0f;
 
 int main()
 {
@@ -72,15 +77,19 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, mouse_scroll_callback);
+
     #pragma endregion "GLFW window and Glad (OpenGL) setup"
 
     GLenum texture_config[4] = { GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR };
 
-    Texture container("resources/container.jpg", GL_TEXTURE_2D, 0, texture_config, true);
-    Texture face("resources/awesomeface.png", GL_TEXTURE_2D, 1, texture_config, true);
+    Texture container("resources/textures/container.jpg", GL_TEXTURE_2D, 0, texture_config, true);
+    Texture face("resources/textures/awesomeface.png", GL_TEXTURE_2D, 1, texture_config, true);
 
     Shader main_shader("shaders/vShader.vert", "shaders/fShader.frag");
-
 
     /*float triangleVertices[] = {
          // positions           // colors           // texture coords
@@ -212,25 +221,28 @@ int main()
     main_shader.setIntUniform("ourTexture0", container.getTextureUnit());
     main_shader.setIntUniform("ourTexture1", face.getTextureUnit());
     
-    view = translate(view, vec3(0.0f, 0.0f, -3.0f));
-    
 
     #pragma region MAIN_RENDER_LOOP
     while (!glfwWindowShouldClose(window))
     {
         updateDeltaTime();
         inputManagement(window);
-
+        
         glClearColor(0.05f, 0.62f, 0.62f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         fps();
 
+        camera.setCamSpeed(cameraSpeed);
+        if(camera.getPosition().y < 0.0f) camera.setPosition(vec3(camera.getPosition().x, 0.0f, camera.getPosition().z));
+
         container.bind();
         face.bind();
         main_shader.use();
 
+        view = camera.getViewMatrix();
         projection = perspective(radians(FOV), (float)_WIDTH / (float)_HEIGHT, 0.1f, 100.0f);
+
         main_shader.setMat4Uniform("view", view);
         main_shader.setMat4Uniform("projection", projection);
 
@@ -284,6 +296,7 @@ void fps()
         cout << "FPS: " << frameCount << endl;
         cout << "Delta time: " << deltaTime << endl;
         cout << "FOV: " << FOV << endl;
+        cout << "Camera position: " << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << endl;
         frameCount = 0;
         previousTime = currentTime;
     }
@@ -300,7 +313,11 @@ void inputManagement(GLFWwindow* window)
 {
     #pragma region ESC_CLOSE_WINDOW
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        windowFocus = false;
+        camera.resetMouseInput();
+    }
     #pragma endregion
     #pragma region WIRE_FRAME
     if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
@@ -329,18 +346,26 @@ void inputManagement(GLFWwindow* window)
     }
     #pragma endregion
     #pragma region CAMERA_MOVEMENT
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        view = translate(view, vec3(0.0f, 0.0f, cameraSpeed*2*deltaTime));
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        view = translate(view, vec3(0.0f, 0.0f, -cameraSpeed*2*deltaTime));
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        view = translate(view, vec3(0.0f, -cameraSpeed*deltaTime, 0.0f));
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        view = translate(view, vec3(0.0f, cameraSpeed*deltaTime, 0.0f));
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        view = translate(view, vec3(cameraSpeed*deltaTime, 0.0f, 0.0f));
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        view = translate(view, vec3(-cameraSpeed*deltaTime, 0.0f, 0.0f));
+    if(windowFocus)
+    {
+        if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            cameraSpeed = 10.0f;
+        else
+            cameraSpeed = 5.0f;
+
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.processKeyboard(FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.processKeyboard(BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.processKeyboard(LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.processKeyboard(RIGHT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+            camera.processKeyboard(UP, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+            camera.processKeyboard(DOWN, deltaTime);
+    }
     #pragma endregion
     #pragma region FOV
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
@@ -350,11 +375,31 @@ void inputManagement(GLFWwindow* window)
     if (FOV > 100.0f) FOV = 100.0f;
     if (FOV < 45.0f) FOV = 45.0f;
     #pragma endregion
+    #pragma region MOUSE_BUTTONS
+    // Left button
+    static int oldState = GLFW_RELEASE;
+    int newState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+    if (newState == GLFW_RELEASE && oldState == GLFW_PRESS) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        windowFocus = true;
+    }
+    oldState = newState;
+    #pragma endregion
 }   
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xPos, double yPos)
+{
+    if(windowFocus) camera.processMouseMovement(xPos, yPos);
+}
+
+void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+{
+    camera.processMouseScroll(yOffset);
 }
 
 #pragma endregion

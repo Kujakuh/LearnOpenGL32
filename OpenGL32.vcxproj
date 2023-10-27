@@ -136,6 +136,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C:\openglSDK\include\CAMERA\base_camera.h" />
     <ClInclude Include="C:\openglSDK\include\SHADER\shader_s.h" />
     <ClInclude Include="C:\openglSDK\include\TEXTURE\texture_s.h" />
   </ItemGroup>

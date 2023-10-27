@@ -29,6 +29,9 @@
     <ClInclude Include="C:\openglSDK\include\TEXTURE\texture_s.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="C:\openglSDK\include\CAMERA\base_camera.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fShader.frag">
