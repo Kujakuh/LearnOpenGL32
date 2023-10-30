@@ -6,43 +6,44 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <SHADER/shader_s.h>
-#include <TEXTURE/texture_s.h>
-#include <CAMERA/base_camera.h>
+#include <SHADER/shader_s.hpp>
+#include <TEXTURE/texture_s.hpp>
+#include <CAMERA/base_camera.hpp>
 
 #include <iostream>
 
-using namespace std;
-using namespace glm;
 
-constexpr auto _HEIGHT = 600;
-constexpr auto _WIDTH = 800;
+#define _HEIGHT 600
+#define _WIDTH 800
+
+#pragma region CAMERA VARIABLES
+BaseCamera camera(glm::vec3(-2.0f, 1.0f, 6.0f));
 
 bool wireframeOn = false, windowFocus = true;
-mat4 model = mat4(1.0f), view = mat4(1.0f), projection = mat4(1.0f);
-
-BaseCamera camera(vec3(-2.0f, 1.0f, 6.0f));
-
-#pragma region FPS_COUNTER
-double previousTime = 0;
-int frameCount = 0;
-void fps();
-#pragma endregion "Frames per second display"
-
-#pragma region DELTA TIME
-float deltaTime = 0.0f;
-float timeSinceStart = 0.0f;
-void updateDeltaTime();
-#pragma endregion "Declaration"
-
-void inputManagement(GLFWwindow* window);
-void framebufferSizeCallback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xPos, double yPos);
-void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
-
+glm::mat4 model = glm::mat4(1.0f), view = glm::mat4(1.0f), projection = glm::mat4(1.0f);
 float FOV = 45.0f;
 float swap_var = 0.2f;
 float cameraSpeed = 5.0f;
+#pragma endregion
+
+#pragma region EXT FUNCTIONS VARIABLES
+double previousTime = 0;
+int frameCount = 0;
+float deltaTime = 0.0f;
+float timeSinceStart = 0.0f;
+#pragma endregion
+
+#pragma region EXT FUNCTIONS DECLARATION
+void fps();
+void updateDeltaTime();
+void inputManagement(GLFWwindow* window);
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+#pragma endregion
+#pragma region CALLBACKS DECLARATION
+void mouse_callback(GLFWwindow* window, double xPos, double yPos);
+void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+#pragma endregion
+
 
 int main()
 {
@@ -59,7 +60,7 @@ int main()
     // Window init
     if (window == NULL)
     {
-        cout << "Failed to create GLFW window" << endl;
+        std::cout << "Failed to create GLFW window" << '\n';
         glfwTerminate();
         return -1;
     }
@@ -70,7 +71,7 @@ int main()
     // Try load Glad for his own OS-specific pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        cout << "Failed to inicialice Glad" << endl;
+        std::cout << "Failed to inicialice Glad" << '\n';
         glfwTerminate();
         return -1;
     }
@@ -86,8 +87,8 @@ int main()
 
     GLenum texture_config[4] = { GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR };
 
-    Texture container("resources/textures/container.jpg", GL_TEXTURE_2D, 0, texture_config, true);
-    Texture face("resources/textures/awesomeface.png", GL_TEXTURE_2D, 1, texture_config, true);
+    Texture container("resources/textures/container.jpg", GL_TEXTURE_2D, 0, texture_config);
+    Texture face("resources/textures/awesomeface.png", GL_TEXTURE_2D, 1, texture_config);
 
     Shader main_shader("shaders/vShader.vert", "shaders/fShader.frag");
 
@@ -150,17 +151,17 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
-    vec3 cubePositions[] = {
-        vec3( 0.0f, 0.0f, 0.0f),
-        vec3( 2.0f, 5.0f, -15.0f),
-        vec3(-1.5f, -2.2f, -2.5f),
-        vec3(-3.8f, -2.0f, -12.3f),
-        vec3( 2.4f, -0.4f, -3.5f),
-        vec3(-1.7f, 3.0f, -7.5f),
-        vec3( 1.3f, -2.0f, -2.5f),
-        vec3( 1.5f, 2.0f, -2.5f),
-        vec3( 1.5f, 0.2f, -1.5f),
-        vec3(-1.3f, 1.0f, -1.5f)
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f, 0.0f, 0.0f),
+        glm::vec3( 2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f, 2.0f, -2.5f),
+        glm::vec3( 1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)
     };
 
 
@@ -234,14 +235,14 @@ int main()
         fps();
 
         camera.setCamSpeed(cameraSpeed);
-        if(camera.getPosition().y < 0.0f) camera.setPosition(vec3(camera.getPosition().x, 0.0f, camera.getPosition().z));
+        if(camera.getPosition().y < -3.0f) camera.setPositionY(-3.0f);
 
         container.bind();
         face.bind();
         main_shader.use();
 
         view = camera.getViewMatrix();
-        projection = perspective(radians(FOV), (float)_WIDTH / (float)_HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(FOV), (float)_WIDTH / (float)_HEIGHT, 0.1f, 100.0f);
 
         main_shader.setMat4Uniform("view", view);
         main_shader.setMat4Uniform("projection", projection);
@@ -252,11 +253,11 @@ int main()
         for(unsigned int i = 0; i < 10; i++)
         {
             float angle = glfwGetTime() * -1 * i;
-            if(i%2==0) angle = glfwGetTime() + i*2;
+            if (i % 2 == 0) angle = glfwGetTime() + i * 2;
             
-            model = mat4(1.0f);
-            model = translate(model, cubePositions[i]);
-            model = rotate(model, angle, vec3(1.0f*i, 0.3f*i, 0.5f*i));
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            model = glm::rotate(model, angle, glm::vec3(1.0f*i, 0.3f*i, 0.5f*i));
             main_shader.setMat4Uniform("model", model);
     
             // Mode, num of vertices, data type of the indices, and offset 
@@ -282,8 +283,25 @@ int main()
     return 0;
 }
 
-#pragma region FUNCTIONS IMPLEMENTATION
+#pragma region CALLBACKS_IMPLEMENTATION
 
+void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xPos, double yPos)
+{
+    if (windowFocus) camera.processMouseMovement(xPos, yPos);
+}
+
+void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+{
+    camera.processMouseScroll(yOffset);
+}
+#pragma endregion
+
+#pragma region EXT FUNCTIONS IMPLEMENTATION
 void fps()
 {
     double currentTime = glfwGetTime();
@@ -293,10 +311,10 @@ void fps()
     {
         system("cls");
         // Display the frame count here any way you want.
-        cout << "FPS: " << frameCount << endl;
-        cout << "Delta time: " << deltaTime << endl;
-        cout << "FOV: " << FOV << endl;
-        cout << "Camera position: " << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << endl;
+        std::cout << "FPS: " << frameCount << '\n';
+        std::cout << "Delta time: " << deltaTime << '\n';
+        std::cout << "FOV: " << FOV << '\n';
+        std::cout << "Camera position: " << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << '\n';
         frameCount = 0;
         previousTime = currentTime;
     }
@@ -386,20 +404,4 @@ void inputManagement(GLFWwindow* window)
     oldState = newState;
     #pragma endregion
 }   
-
-void framebufferSizeCallback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
-void mouse_callback(GLFWwindow* window, double xPos, double yPos)
-{
-    if(windowFocus) camera.processMouseMovement(xPos, yPos);
-}
-
-void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
-{
-    camera.processMouseScroll(yOffset);
-}
-
 #pragma endregion
