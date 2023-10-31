@@ -87,10 +87,11 @@ int main()
 
     GLenum texture_config[4] = { GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR };
 
-    Texture container("resources/textures/container.jpg", GL_TEXTURE_2D, 0, texture_config);
-    Texture face("resources/textures/awesomeface.png", GL_TEXTURE_2D, 1, texture_config);
+    Texture container("resources/textures/container.jpg", GL_TEXTURE_2D, 1, texture_config);
+    Texture face("resources/textures/awesomeface.png", GL_TEXTURE_2D, 2, texture_config);
 
-    Shader main_shader("shaders/vShader.vert", "shaders/fShader.frag");
+    Shader main_shader("shaders/vertex/vShader.vert", "shaders/fragment/fShader.frag");
+    Shader light_source_shader("shaders/vertex/lightSourceVShader.vert", "shaders/fragment/lightSourceFShader.frag");
 
     /*float triangleVertices[] = {
          // positions           // colors           // texture coords
@@ -108,54 +109,56 @@ int main()
     */
 
     float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        // Positions            // Tex coords       // Normal vectors
+        -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,         0.0f, 0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,    1.0f, 0.0f,         0.0f, 0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,    1.0f, 1.0f,         0.0f, 0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,    1.0f, 1.0f,         0.0f, 0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,    0.0f, 1.0f,         0.0f, 0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,         0.0f, 0.0f, -1.0f,
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,         0.0f, 0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,    1.0f, 0.0f,         0.0f, 0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,    1.0f, 1.0f,         0.0f, 0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,    1.0f, 1.0f,         0.0f, 0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,    0.0f, 1.0f,         0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,         0.0f, 0.0f, 1.0f,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,    1.0f, 0.0f,         -1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,    1.0f, 1.0f,         -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,    0.0f, 1.0f,         -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,    0.0f, 1.0f,         -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,         -1.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,    1.0f, 0.0f,         -1.0f, 0.0f, 0.0f,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,    1.0f, 0.0f,         1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,    1.0f, 1.0f,         1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,    0.0f, 1.0f,         1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,    0.0f, 1.0f,         1.0f, 0.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,    0.0f, 0.0f,         1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,    1.0f, 0.0f,         1.0f, 0.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,    0.0f, 1.0f,         0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f, -0.5f,    1.0f, 1.0f,         0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,    1.0f, 0.0f,         0.0f, -1.0f, 0.0f,
+         0.5f, -0.5f,  0.5f,    1.0f, 0.0f,         0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,         0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,    0.0f, 1.0f,         0.0f, -1.0f, 0.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        -0.5f,  0.5f, -0.5f,    0.0f, 1.0f,         0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f, -0.5f,    1.0f, 1.0f,         0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,    1.0f, 0.0f,         0.0f, 1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,    1.0f, 0.0f,         0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,    0.0f, 0.0f,         0.0f, 1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,    0.0f, 1.0f,         0.0f, 1.0f, 0.0f
     };
 
     glm::vec3 cubePositions[] = {
-        glm::vec3( 0.0f, 0.0f, 0.0f),
+        glm::vec3(-3.5f, -1.2f, -1.5f), // Light source
+
         glm::vec3( 2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( -4.2f, 1.0f, 2.0f),
+        glm::vec3(-3.8f, -2.0f, -22.3f),
         glm::vec3( 2.4f, -0.4f, -3.5f),
         glm::vec3(-1.7f, 3.0f, -7.5f),
         glm::vec3( 1.3f, -2.0f, -2.5f),
@@ -206,11 +209,14 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // normal vectors
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
 
     // Unbinding VAO, VBO AND EBO
@@ -221,7 +227,6 @@ int main()
     main_shader.use();
     main_shader.setIntUniform("ourTexture0", container.getTextureUnit());
     main_shader.setIntUniform("ourTexture1", face.getTextureUnit());
-    
 
     #pragma region MAIN_RENDER_LOOP
     while (!glfwWindowShouldClose(window))
@@ -229,7 +234,7 @@ int main()
         updateDeltaTime();
         inputManagement(window);
         
-        glClearColor(0.05f, 0.62f, 0.62f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         fps();
@@ -239,27 +244,54 @@ int main()
 
         container.bind();
         face.bind();
-        main_shader.use();
 
         view = camera.getViewMatrix();
         projection = glm::perspective(glm::radians(FOV), (float)_WIDTH / (float)_HEIGHT, 0.1f, 100.0f);
 
+        main_shader.use();
         main_shader.setMat4Uniform("view", view);
         main_shader.setMat4Uniform("projection", projection);
+        main_shader.setFloat3Uniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 
         main_shader.setFloatUniform("pick", swap_var);
+
+        light_source_shader.use();
+        light_source_shader.setMat4Uniform("view", view);
+        light_source_shader.setMat4Uniform("projection", projection);
+
+        cubePositions[0].x = (float) sin(glfwGetTime()/4) * -3;
+        cubePositions[0].y = (float) sin(glfwGetTime()/4) *  2;
+        cubePositions[0].z = (float) cos(glfwGetTime()/4) * -3;
         
         glBindVertexArray(VAO);
         for(unsigned int i = 0; i < 10; i++)
         {
-            float angle = glfwGetTime() * -1 * i;
-            if (i % 2 == 0) angle = glfwGetTime() + i * 2;
+            //float angle = glm::radians(55.0f);
+            float angle = glfwGetTime()/2 * -1 * i/2;
+            if (i % 3 == 0) angle = glfwGetTime()/2 + i;
             
             model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
-            model = glm::rotate(model, angle, glm::vec3(1.0f*i, 0.3f*i, 0.5f*i));
-            main_shader.setMat4Uniform("model", model);
-    
+            
+            if (i == 0)
+            {
+                model = glm::scale(model, glm::vec3(0.4f));
+                model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+
+                light_source_shader.use();
+                light_source_shader.setMat4Uniform("model", model);
+            }
+            else
+            {
+                model = glm::rotate(model, angle, glm::vec3(1.0f*i, 0.3f*i, 0.5f*i));
+                glm::mat3 normalMatrixTransform = glm::transpose(glm::inverse(glm::mat3(model)));
+
+                main_shader.use();
+                main_shader.setMat3Uniform("normalMatrixTransform", normalMatrixTransform);
+                main_shader.setMat4Uniform("model", model);
+                main_shader.setFloat3Uniform("lightSourcePos", cubePositions[0].x, cubePositions[0].y, cubePositions[0].z);
+                main_shader.setFloat3Uniform("lightColor", 1.0f, 1.0f, 1.0f);
+            }
             // Mode, num of vertices, data type of the indices, and offset 
             //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
@@ -284,7 +316,6 @@ int main()
 }
 
 #pragma region CALLBACKS_IMPLEMENTATION
-
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -314,7 +345,8 @@ void fps()
         std::cout << "FPS: " << frameCount << '\n';
         std::cout << "Delta time: " << deltaTime << '\n';
         std::cout << "FOV: " << FOV << '\n';
-        std::cout << "Camera position: " << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << '\n';
+        std::cout << "Camera position: " 
+        << camera.getPosition().x << " " << camera.getPosition().y << " " << camera.getPosition().z << '\n';
         frameCount = 0;
         previousTime = currentTime;
     }

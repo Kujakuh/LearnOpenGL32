@@ -79,6 +79,7 @@ public:
 	{
 		glActiveTexture(0);
 		glBindTexture(this->type, 0);
+		glDisable(this->type);
 	}
 
 	void loadFromFile(const char* texturePath, bool flip)

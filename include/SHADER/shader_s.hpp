@@ -156,6 +156,11 @@ public:
 		glUseProgram(this->ID);
 	}
 
+	void disable()
+	{
+		glUseProgram(0);
+	}
+
 	/*	Uniform utility functions:
 	*
 	*	Get the uniform "location" (var it self) in the shader program to be able to edit

@@ -100,6 +100,7 @@ public:
     void resetMouseInput() {this->firstMouseInput = true;}
 
     #pragma region GETTERS
+    //inline glm::mat4 getViewMatrix() { return glm::lookAt(this->position, (this->position + this->front), this->up); }
     inline glm::mat4 getViewMatrix() { return glm::lookAt(this->position, (this->position + this->front), this->up); }
     inline glm::vec3 getPosition() { return this->position; }
     inline float getYaw() { return this->yaw; }
@@ -112,8 +113,8 @@ public:
     inline void setPositionX(float x) { this->position.x = x; }
     inline void setPositionY(float y) { this->position.y = y; }
     inline void setPositionZ(float z) { this->position.z = z; }
-    inline void setYaw(float yaw) { this->yaw = yaw; }
-    inline void setPitch(float pitch) { this->pitch = pitch; }
+    inline void setYaw(float yaw) { this->yaw = yaw; updateCameraVectors(); }
+    inline void setPitch(float pitch) { this->pitch = pitch; updateCameraVectors(); }
     inline void setCamSpeed(float camSpeed) { this->camSpeed = camSpeed; }
     inline void setMouseDPI(float mouseDPI) { this->mouseDPI = mouseDPI; }
     #pragma endregion
