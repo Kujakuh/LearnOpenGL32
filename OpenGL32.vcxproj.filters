@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Archivos de recursos\Shaders">
+      <UniqueIdentifier>{43ff2ece-d679-41f6-8206-03e35a1f3b51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de recursos\Shaders\Fragment Shaders">
+      <UniqueIdentifier>{cef3f6af-aa13-4636-aea3-4f322210561b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de recursos\Shaders\Vertex Shaders">
+      <UniqueIdentifier>{f222d833-6867-4c49-8cd9-7b13758209bb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -34,11 +43,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fShader.frag">
-      <Filter>Archivos de recursos</Filter>
+    <None Include="shaders\fragment\fShader.frag">
+      <Filter>Archivos de recursos\Shaders\Fragment Shaders</Filter>
     </None>
-    <None Include="shaders\vShader.vert">
-      <Filter>Archivos de recursos</Filter>
+    <None Include="shaders\fragment\lightSourceFShader.frag">
+      <Filter>Archivos de recursos\Shaders\Fragment Shaders</Filter>
+    </None>
+    <None Include="shaders\vertex\lightSourceVShader.vert">
+      <Filter>Archivos de recursos\Shaders\Vertex Shaders</Filter>
+    </None>
+    <None Include="shaders\vertex\vShader.vert">
+      <Filter>Archivos de recursos\Shaders\Vertex Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>
