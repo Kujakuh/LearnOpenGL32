@@ -28,10 +28,11 @@
 // Utils -----------------------------------------------------------------------
 #pragma region "Shader construct utility functions"
 
-void compileShader(GLuint shader, const char* shaderCode)
+void compileShader(GLuint shader, const char* shaderCode, char shaderType)
 {
 	int compilationFlag;
 	char infoLog[512];
+	std::string shaderTypeStr;
 
 	glShaderSource(shader, 1, &shaderCode, NULL); // Attach shader source code to shader object
 	glCompileShader(shader); // Compile the shader source code to the shader object
@@ -41,7 +42,9 @@ void compileShader(GLuint shader, const char* shaderCode)
 	if (!compilationFlag)
 	{
 		glGetShaderInfoLog(shader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << '\n';
+		if(shaderType == 'v') shaderTypeStr = "VERTEX";
+		else if(shaderType == 'f') shaderTypeStr = "FRAGMENT";
+		std::cout << "ERROR::SHADER::"+ shaderTypeStr + "::COMPILATION_FAILED\n" << infoLog << '\n';
 	}
 }
 
@@ -104,29 +107,36 @@ private:
 public:
 
 	// The constructor will read and compile both shaders
-	Shader(const char* vertexPath, const char* fragmentPath)
+	Shader(const char* vertexPath, const char* fragmentPath, int stringMode = 0)
 	{
 		this->ID = 0;
-
-		// 1. Get the vertex and fragment source code from filePath and convert it to string
-
-		std::string vertexCode = readShaderFile(vertexPath);
-		std::string fragmentCode = readShaderFile(fragmentPath);
-
-		// Convert string into char*
-
-		const char* vShaderCode = vertexCode.c_str();
-		const char* fShaderCode = fragmentCode.c_str();
-
-		// 2. Shader compilation
-
 		// Vertex Shader object and fragment shader object creation
 		GLuint vertexShader, fragmentShader;
 		vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
-		compileShader(vertexShader, vShaderCode);
-		compileShader(fragmentShader, fShaderCode);
+		if (stringMode != 1)
+		{
+			// 1. Get the vertex and fragment source code from filePath and convert it to string
+
+			std::string vertexCode = readShaderFile(vertexPath);
+			std::string fragmentCode = readShaderFile(fragmentPath);
+
+			// Convert string into char*
+
+			const char* vShaderCode = vertexCode.c_str();
+			const char* fShaderCode = fragmentCode.c_str();
+
+			// 2. Shader compilation
+
+			compileShader(vertexShader, vShaderCode, 'v');
+			compileShader(fragmentShader, fShaderCode, 'f');
+		}
+		else 
+		{
+			compileShader(vertexShader, vertexPath, 'v');
+			compileShader(fragmentShader, fragmentPath, 'f');
+		}
 
 		// Shader program creation and linking
 		this->ID = glCreateProgram();
@@ -189,6 +199,14 @@ public:
 	void setFloat4Uniform(const std::string& name, float v1, float v2, float v3, float v4) const
 	{
 		glUniform4f(glGetUniformLocation(this->ID, name.c_str()), v1, v2, v3, v4);
+	}
+	void setVec3Uniform(const std::string& name, glm::vec3 value) const
+	{
+		glUniform3f(glGetUniformLocation(this->ID, name.c_str()), value.x, value.y, value.z);
+	}
+	void setVec4Uniform(const std::string& name, glm::vec4 value) const
+	{
+		glUniform4f(glGetUniformLocation(this->ID, name.c_str()), value.x, value.y, value.z, value.w);
 	}
 	void setMat3Uniform(const std::string& name, glm::mat3 value) const
 	{

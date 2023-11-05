@@ -105,6 +105,7 @@ public:
     inline glm::vec3 getPosition() { return this->position; }
     inline float getYaw() { return this->yaw; }
     inline float getPitch() { return this->pitch; }
+    inline glm::vec3 getFront() { return this->front; }
     inline float getCamSpeed() { return this->camSpeed; }
     inline float getMouseDPI() { return this->mouseDPI; }
     #pragma endregion
@@ -113,6 +114,7 @@ public:
     inline void setPositionX(float x) { this->position.x = x; }
     inline void setPositionY(float y) { this->position.y = y; }
     inline void setPositionZ(float z) { this->position.z = z; }
+    inline void setFront(glm::vec3 front) { this->front = front; }
     inline void setYaw(float yaw) { this->yaw = yaw; updateCameraVectors(); }
     inline void setPitch(float pitch) { this->pitch = pitch; updateCameraVectors(); }
     inline void setCamSpeed(float camSpeed) { this->camSpeed = camSpeed; }

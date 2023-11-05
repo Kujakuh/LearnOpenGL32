@@ -1,39 +1,62 @@
 
 #version 460 core
 
+struct Material {
+   sampler2D diffuse;
+   sampler2D specularMap;
+   float shininess;
+};
+
+struct Light {
+   vec3 position;
+   vec3 direction;
+   float innerCutOff;
+   float outerCutOff;
+
+   vec3 ambient;
+   vec3 diffuse;
+   vec3 specular;
+
+   float constant;
+   float linear;
+   float quadratic;
+};
+
+
 out vec4 FragColor;
 
 in vec2 textCoord;
-in vec3 fragPos;
 in vec3 normal;
+in vec3 fragPos;
 
-uniform vec3 lightSourcePos;
-uniform vec3 lightColor;
+uniform Material m;
+uniform Light light;
+
 uniform vec3 viewPos;
-uniform sampler2D ourTexture0;
-uniform sampler2D ourTexture1;
-uniform float pick;
 
 void main()
 {
-   float lightDistanceStrength = 6.0;
-   float specularStrength = 0.1;
-   int shininess = 32;
-   float ambientLightVal = 0.1;
-
    vec3 norm = normalize(normal);
-   vec3 lightDir = normalize(lightSourcePos - fragPos);
+   vec3 lightDir = normalize(light.position - fragPos);
    vec3 viewDir = normalize(viewPos - fragPos);
    vec3 reflectDir = reflect(-lightDir, norm);
 
-   float lightIntensity = min(lightDistanceStrength/2, lightDistanceStrength/length(lightSourcePos - fragPos));
+   float diffuse = max(dot(norm, lightDir), 0.0);
+   float specular = pow(max(dot(viewDir, reflectDir), 0.0), m.shininess);
 
-   float specular = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+   vec3 ambientLightMod = light.ambient * vec3(texture(m.diffuse, textCoord));
+   vec3 diffuseLightMod = light.diffuse * (diffuse * vec3(texture(m.diffuse, textCoord)));
+   vec3 specularLightMod = light.specular * (specular * vec3(texture(m.specularMap, textCoord)));
 
-   vec3 ambientLightMod = vec3(ambientLightVal);
-   vec3 diffuseLightMod = max(dot(norm, lightDir), 0.0) * lightColor;
-   vec3 specularLightMod = specularStrength * specular * lightColor;
+   float distance = length(light.position - fragPos);
+   float attenuation = 1.0/ (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
-   FragColor = mix(texture(ourTexture0, textCoord), texture(ourTexture1, textCoord), pick)
-   * vec4((ambientLightMod + diffuseLightMod + specularLightMod) * lightIntensity, 1.0);
+   float theta = dot(lightDir, normalize(-light.direction));
+   float epsilon = light.innerCutOff - light.outerCutOff;
+   float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+
+   //FragColor = vec4((ambientLightMod + diffuseLightMod + specularLightMod) * attenuation, 1.0);
+   
+   FragColor = vec4((ambientLightMod + diffuseLightMod + specularLightMod) * attenuation * intensity, 1.0);
+
 };

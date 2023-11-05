@@ -87,13 +87,15 @@ int main()
 
     GLenum texture_config[4] = { GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR };
 
-    Texture container("resources/textures/container.jpg", GL_TEXTURE_2D, 1, texture_config);
-    Texture face("resources/textures/awesomeface.png", GL_TEXTURE_2D, 2, texture_config);
-
+    Texture container("resources/textures/container2.png", GL_TEXTURE_2D, 1, texture_config);
+    Texture _container("resources/textures/_container2_specular.png", GL_TEXTURE_2D, 2, texture_config);
+    //Texture _container("resources/textures/lighting_maps_specular_color.png", GL_TEXTURE_2D, 2, texture_config);
+   
     Shader main_shader("shaders/vertex/vShader.vert", "shaders/fragment/fShader.frag");
     Shader light_source_shader("shaders/vertex/lightSourceVShader.vert", "shaders/fragment/lightSourceFShader.frag");
 
-    /*float triangleVertices[] = {
+    /*
+    float triangleVertices[] = {
          // positions           // colors           // texture coords
          0.5f,  0.5f, 0.0f,     1.0f, 0.0f, 0.0f,   1.0f, 1.0f,         // top right
          0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f,   1.0f, 0.0f,         // bottom right
@@ -225,8 +227,10 @@ int main()
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     main_shader.use();
-    main_shader.setIntUniform("ourTexture0", container.getTextureUnit());
-    main_shader.setIntUniform("ourTexture1", face.getTextureUnit());
+    main_shader.setIntUniform("m.diffuse", container.getTextureUnit());
+    main_shader.setIntUniform("m.specularMap", _container.getTextureUnit());
+    main_shader.setFloatUniform("m.shininess", 64.0f);
+
 
     #pragma region MAIN_RENDER_LOOP
     while (!glfwWindowShouldClose(window))
@@ -243,7 +247,7 @@ int main()
         if(camera.getPosition().y < -3.0f) camera.setPositionY(-3.0f);
 
         container.bind();
-        face.bind();
+        _container.bind();
 
         view = camera.getViewMatrix();
         projection = glm::perspective(glm::radians(FOV), (float)_WIDTH / (float)_HEIGHT, 0.1f, 100.0f);
@@ -251,13 +255,12 @@ int main()
         main_shader.use();
         main_shader.setMat4Uniform("view", view);
         main_shader.setMat4Uniform("projection", projection);
-        main_shader.setFloat3Uniform("viewPos", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
-
-        main_shader.setFloatUniform("pick", swap_var);
+        main_shader.setVec3Uniform("viewPos", camera.getPosition());
 
         light_source_shader.use();
         light_source_shader.setMat4Uniform("view", view);
         light_source_shader.setMat4Uniform("projection", projection);
+        glm::vec3 lightColor = glm::vec3(1.0f);
 
         cubePositions[0].x = (float) sin(glfwGetTime()/4) * -3;
         cubePositions[0].y = (float) sin(glfwGetTime()/4) *  2;
@@ -267,8 +270,8 @@ int main()
         for(unsigned int i = 0; i < 10; i++)
         {
             //float angle = glm::radians(55.0f);
-            float angle = glfwGetTime()/2 * -1 * i/2;
-            if (i % 3 == 0) angle = glfwGetTime()/2 + i;
+            float angle = glfwGetTime() * -1 * i/2;
+            if (i % 3 == 0) angle = glfwGetTime() + i/2 * 2;
             
             model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
@@ -279,7 +282,7 @@ int main()
                 model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
 
                 light_source_shader.use();
-                light_source_shader.setMat4Uniform("model", model);
+                //light_source_shader.setMat4Uniform("model", model);
             }
             else
             {
@@ -289,8 +292,21 @@ int main()
                 main_shader.use();
                 main_shader.setMat3Uniform("normalMatrixTransform", normalMatrixTransform);
                 main_shader.setMat4Uniform("model", model);
-                main_shader.setFloat3Uniform("lightSourcePos", cubePositions[0].x, cubePositions[0].y, cubePositions[0].z);
-                main_shader.setFloat3Uniform("lightColor", 1.0f, 1.0f, 1.0f);
+
+                //main_shader.setVec3Uniform("light.position", cubePositions[0]);
+                main_shader.setVec3Uniform("light.position", camera.getPosition());
+                main_shader.setVec3Uniform("light.direction", camera.getFront());
+                main_shader.setFloatUniform("light.innerCutOff", glm::cos(glm::radians(15.0f)));
+                main_shader.setFloatUniform("light.outerCutOff", glm::cos(glm::radians(20.0f)));
+
+
+                main_shader.setVec3Uniform("light.diffuse", lightColor);
+                main_shader.setVec3Uniform("light.specular", glm::vec3(1.0f));
+                main_shader.setVec3Uniform("light.ambient",  glm::vec3(0.1f));
+
+                main_shader.setFloatUniform("light.constant", 1.0f);
+                main_shader.setFloatUniform("light.linear", 0.05f);
+                main_shader.setFloatUniform("light.quadratic", 0.01f);
             }
             // Mode, num of vertices, data type of the indices, and offset 
             //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -381,18 +397,6 @@ void inputManagement(GLFWwindow* window)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             wireframeOn = true;
         }
-    }
-    #pragma endregion
-    #pragma region TEXTURE_SWAP
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-    {
-        swap_var += deltaTime;
-        if(swap_var > 1.0f) swap_var = 1.0f;
-    }
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-    {
-        swap_var -= deltaTime;
-        if(swap_var < 0.0f) swap_var = 0.0f;
     }
     #pragma endregion
     #pragma region CAMERA_MOVEMENT
