@@ -6,6 +6,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include <SHADER/shader_s.hpp>
 #include <TEXTURE/texture_s.hpp>
 #include <CAMERA/base_camera.hpp>
@@ -47,6 +51,8 @@ void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
 int main()
 {
+    Assimp::Importer importer;
+
     #pragma region SETUP
 
     // GLFW initialization
