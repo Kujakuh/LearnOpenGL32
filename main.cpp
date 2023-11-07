@@ -93,8 +93,8 @@ int main()
 
     GLenum texture_config[4] = { GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR };
 
-    Texture container("resources/textures/container2.png", GL_TEXTURE_2D, 1, texture_config);
-    Texture _container("resources/textures/_container2_specular.png", GL_TEXTURE_2D, 2, texture_config);
+    Texture container("resources/textures/container2.png", GL_TEXTURE_2D, 1, texture_config, texture_diffuse);
+    Texture _container("resources/textures/_container2_specular.png", GL_TEXTURE_2D, 2, texture_config, texture_specular);
     //Texture _container("resources/textures/lighting_maps_specular_color.png", GL_TEXTURE_2D, 2, texture_config);
    
     Shader main_shader("shaders/vertex/vShader.vert", "shaders/fragment/fShader.frag");

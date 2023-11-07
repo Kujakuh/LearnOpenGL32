@@ -24,6 +24,13 @@
 
 #include <iostream>
 
+enum TextureType
+{
+	texture_diffuse,
+	texture_specular,
+	texture_normal,
+	texture_height
+};
 
 class Texture
 {
@@ -38,8 +45,11 @@ private:
 
 public:
 
-	Texture(const char* texturePath, GLenum type, int textureUnit, GLenum wrapTSMinMag_filters[], bool flip = true)
+	TextureType sType;
+
+	Texture(const char* texturePath, GLenum type, int textureUnit, GLenum wrapTSMinMag_filters[], TextureType sType, bool flip = true)
 	{
+		this->sType = sType;
 		this->ID = -1;
 		this->type = type;
 		this->textureUnit = textureUnit;
@@ -50,6 +60,19 @@ public:
 	~Texture() 
 	{
 		glDeleteTextures(1, &this->ID);
+	}
+
+	inline std::string getTextureType() const 
+	{
+		std::string typeStr;
+		switch (this->sType)
+		{
+			case texture_diffuse: typeStr = "texture_diffuse"; break;
+			case texture_specular: typeStr = "texture_specular"; break;
+			case texture_normal: typeStr = "texture_normal"; break;
+			case texture_height: typeStr = "texture_height"; break;
+		}
+		return typeStr;
 	}
 
 	inline GLuint getID() const { return this->ID; }

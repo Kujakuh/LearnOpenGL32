@@ -137,6 +137,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C:\openglSDK\include\CAMERA\base_camera.hpp" />
+    <ClInclude Include="C:\openglSDK\include\MESH\mesh.hpp" />
+    <ClInclude Include="C:\openglSDK\include\MODEL\model.hpp" />
     <ClInclude Include="C:\openglSDK\include\SHADER\shader_s.hpp" />
     <ClInclude Include="C:\openglSDK\include\TEXTURE\texture_s.hpp" />
   </ItemGroup>

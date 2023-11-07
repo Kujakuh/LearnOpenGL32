@@ -41,6 +41,12 @@
     <ClInclude Include="C:\openglSDK\include\CAMERA\base_camera.hpp">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
+    <ClInclude Include="C:\openglSDK\include\MODEL\model.hpp">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\openglSDK\include\MESH\mesh.hpp">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragment\fShader.frag">
