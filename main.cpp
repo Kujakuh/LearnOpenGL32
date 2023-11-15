@@ -13,12 +13,15 @@
 #include <SHADER/shader_s.hpp>
 #include <TEXTURE/texture_s.hpp>
 #include <CAMERA/base_camera.hpp>
+#include <MESH/mesh.hpp>
+#include <MODEL/model.hpp>
 
 #include <iostream>
+#include <vector>
 
+constexpr int _WIDTH = 900;
+constexpr int _HEIGHT = (int) (0.5625*_WIDTH);
 
-#define _HEIGHT 600
-#define _WIDTH 800
 
 #pragma region CAMERA VARIABLES
 BaseCamera camera(glm::vec3(-2.0f, 1.0f, 6.0f));
@@ -51,7 +54,14 @@ void mouse_scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
 int main()
 {
+    
     Assimp::Importer importer;
+    std::vector<Vertex> a;
+    std::vector<GLuint> b;
+    std::vector<Texture> c; 
+    //Mesh x = Mesh(a,b,c);
+    Model y = Model("resources/models/backpack/backpack.obj");
+
 
     #pragma region SETUP
 
@@ -89,6 +99,8 @@ int main()
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, mouse_scroll_callback);
 
+    glfwSetWindowAspectRatio(window, 16, 9);
+
     #pragma endregion "GLFW window and Glad (OpenGL) setup"
 
     GLenum texture_config[4] = { GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR };
@@ -99,6 +111,7 @@ int main()
    
     Shader main_shader("shaders/vertex/vShader.vert", "shaders/fragment/fShader.frag");
     Shader light_source_shader("shaders/vertex/lightSourceVShader.vert", "shaders/fragment/lightSourceFShader.frag");
+    Shader model_shader("shaders/vertex/model_shader.vert", "shaders/fragment/model_shader.frag");
 
     /*
     float triangleVertices[] = {
@@ -233,9 +246,9 @@ int main()
     //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     main_shader.use();
-    main_shader.setIntUniform("m.diffuse", container.getTextureUnit());
-    main_shader.setIntUniform("m.specularMap", _container.getTextureUnit());
-    main_shader.setFloatUniform("m.shininess", 64.0f);
+    main_shader.setIntUniform("m[0].diffuse", container.getTextureUnit());
+    main_shader.setIntUniform("m[0].specularMap", _container.getTextureUnit());
+    main_shader.setFloatUniform("m[0].shininess", 64.0f);
 
 
     #pragma region MAIN_RENDER_LOOP
@@ -273,6 +286,17 @@ int main()
         cubePositions[0].z = (float) cos(glfwGetTime()/4) * -3;
         
         glBindVertexArray(VAO);
+
+
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(3.0f));
+        model = glm::translate(model, cubePositions[0]);
+
+        model_shader.use();
+        model_shader.setMat4Uniform("model", model);    
+        model_shader.setMat4Uniform("view", view);
+        model_shader.setMat4Uniform("projection", projection);
+
         for(unsigned int i = 0; i < 10; i++)
         {
             //float angle = glm::radians(55.0f);
@@ -287,8 +311,9 @@ int main()
                 model = glm::scale(model, glm::vec3(0.4f));
                 model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
 
-                light_source_shader.use();
+                //light_source_shader.use();
                 //light_source_shader.setMat4Uniform("model", model);
+                y.draw(model_shader);
             }
             else
             {
@@ -299,8 +324,8 @@ int main()
                 main_shader.setMat3Uniform("normalMatrixTransform", normalMatrixTransform);
                 main_shader.setMat4Uniform("model", model);
 
-                //main_shader.setVec3Uniform("light.position", cubePositions[0]);
-                main_shader.setVec3Uniform("light.position", camera.getPosition());
+                main_shader.setVec3Uniform("light.position", cubePositions[0]);
+                //main_shader.setVec3Uniform("light.position", camera.getPosition());
                 main_shader.setVec3Uniform("light.direction", camera.getFront());
                 main_shader.setFloatUniform("light.innerCutOff", glm::cos(glm::radians(15.0f)));
                 main_shader.setFloatUniform("light.outerCutOff", glm::cos(glm::radians(20.0f)));
@@ -362,7 +387,7 @@ void fps()
     // If a second has passed.
     if (currentTime - previousTime >= 1.0)
     {
-        system("cls");
+        //system("cls");
         // Display the frame count here any way you want.
         std::cout << "FPS: " << frameCount << '\n';
         std::cout << "Delta time: " << deltaTime << '\n';

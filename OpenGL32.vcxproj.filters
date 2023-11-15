@@ -61,5 +61,11 @@
     <None Include="shaders\vertex\vShader.vert">
       <Filter>Archivos de recursos\Shaders\Vertex Shaders</Filter>
     </None>
+    <None Include="shaders\fragment\model_shader.frag">
+      <Filter>Archivos de recursos\Shaders\Fragment Shaders</Filter>
+    </None>
+    <None Include="shaders\vertex\model_shader.vert">
+      <Filter>Archivos de recursos\Shaders\Vertex Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
